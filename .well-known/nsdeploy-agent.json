@@ -1,0 +1,7 @@
+{
+  "protocol": "nsdeploy-agent-mcp/v1",
+  "network": "agentic_fab",
+  "front_man": "agentic_fab_frontman",
+  "available": false,
+  "reason": "This is a static GitHub Pages bundle running in-browser; a public MCP facade requires an application host."
+}
