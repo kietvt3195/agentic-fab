@@ -128,7 +128,8 @@ function renderWorkbench() {
 
   const badge = document.getElementById("safetyBadge");
   const isPass = bom.metrics.safety_status === "PASS";
-  badge.textContent = bom.metrics.safety_status;
+  badge.textContent = isPass ? "PASS" : "UPGRADE RECOMMENDED";
+  badge.title = bom.metrics.safety_status;
   badge.className = `safety-badge ${isPass ? "pass" : "warn"}`;
 
   document.getElementById("safetyDetail").innerHTML =
@@ -200,11 +201,25 @@ function renderWorkbench() {
   document.getElementById("bomTotalVnd").textContent = `${bom.pricing.total_vnd.toLocaleString("en-US")} VNĐ`;
 }
 
+function formatAgentText(text) {
+  const escaped = String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  return escaped
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
 function appendChat(role, text) {
   const feed = document.getElementById("chatMessages");
   const div = document.createElement("div");
   div.className = `msg ${role}`;
-  div.textContent = text;
+  if (role === "agent") {
+    div.innerHTML = formatAgentText(text);
+  } else {
+    div.textContent = text;
+  }
   feed.appendChild(div);
   feed.scrollTop = feed.scrollHeight;
 }
