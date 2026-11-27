@@ -1,0 +1,36 @@
+{
+  "name": "AgenticFab",
+  "description": "Open Agentic Web multi-agent structural frame co-designer (4040/4080 aluminum & steel BOM, Euler-Bernoulli beam deflection check, FFD 1D cut-list optimizer, and SHA-256 signed RFQ).",
+  "url": "https://kietvt3195.github.io/agentic-fab/",
+  "version": "1.0.0",
+  "protocolVersion": "0.3",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": true
+  },
+  "defaultInputModes": ["text/plain", "application/json"],
+  "defaultOutputModes": ["text/plain", "application/json"],
+  "skills": [
+    {
+      "id": "structural_bom_and_deflection",
+      "name": "Structural BOM & Deflection Check",
+      "description": "Computes cut lengths, brackets, T-nuts, bolts, mass, cost, and mid-span beam deflection against L/300 stiffness limit."
+    },
+    {
+      "id": "cutlist_bin_packing",
+      "name": "1D Cut-List Optimization (FFD)",
+      "description": "Packs required frame cuts into 6000mm or 2000mm stock bars with 3mm saw kerf to minimize scrap."
+    },
+    {
+      "id": "signed_rfq",
+      "name": "Verifiable SHA-256 Signed RFQ",
+      "description": "Generates a tamper-evident JSON RFQ receipt after explicit visitor confirmation."
+    }
+  ],
+  "openAgenticWeb": {
+    "manifest": "./agent-manifest.json",
+    "network": "./agentic_fab.network.json",
+    "nsdeploy": "./.well-known/nsdeploy-agent.json"
+  }
+}
