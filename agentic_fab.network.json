@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "name": "agentic_fab",
+    "description": "Portable Neuro SAN multi-agent network for industrial aluminum/steel frame engineering, beam deflection safety analysis, 1D stock-bar cut-list optimization, and SHA-256 signed RFQs.",
+    "author": "Kiet Vo (kietvt3195)",
+    "spec_profile": "worldwide-agentic-web-mvp/0.3",
+    "sample_queries": [
+      "Design a 1600x800x750mm 4040-Heavy workbench for 250kg load & optimize 6000mm cut list",
+      "Check if 4040-Light passes 300kg distributed load over a 2000mm span",
+      "Compare 4040-Heavy vs 4080-Heavy for 2000x900x750mm under 350kg load",
+      "Issue a SHA-256 signed RFQ for 3 tables at 1400x700x750mm 4040-Heavy"
+    ]
+  },
+  "llm_config": {
+    "model_name": "gpt-4o-mini",
+    "temperature": 0.1
+  },
+  "max_steps": 12,
+  "commondefs": {
+    "replacement_strings": {
+      "site_name": "AgenticFab",
+      "grounding_rules": "\nFacts come strictly from website_* tool results and this conversation.\nNever invent prices, deflection values, cut-list bars, or RFQ hashes.\nAlways check deflection against L/300 before recommending a profile.\nBefore executing issue_signed_rfq (effect: irreversible), wait for explicit visitor confirmation in the runtime Confirmation Modal."
+    }
+  },
+  "tools": [
+    {
+      "name": "agentic_fab_frontman",
+      "function": {
+        "description": "Front agent coordinating structural BOM sizing, beam deflection safety checks, 1D cut-list bin packing, live workbench synchronization, and signed RFQ issuance.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "User engineering request in plain English or Vietnamese."
+            }
+          },
+          "required": ["request"]
+        }
+      },
+      "instructions": "You are the front coordinator on {site_name}. Delegate structural calculations to structural_bom_agent, bar-nesting optimization to cutlist_optimizer_agent, and signed RFQ generation to quote_compliance_agent. {grounding_rules}",
+      "tools": [
+        "structural_bom_agent",
+        "cutlist_optimizer_agent",
+        "quote_compliance_agent",
+        "website_list_profiles",
+        "website_apply_to_workbench"
+      ]
+    },
+    {
+      "name": "structural_bom_agent",
+      "function": {
+        "description": "Calculates Bill of Materials (cut lengths, brackets, T-nuts, bolts, mass, cost) and Euler-Bernoulli mid-span beam deflection against L/300 stiffness criteria.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "length_mm": { "type": "number" },
+            "width_mm": { "type": "number" },
+            "height_mm": { "type": "number" },
+            "profile_id": { "type": "string" },
+            "load_kg": { "type": "number" },
+            "qty": { "type": "number" }
+          },
+          "required": ["length_mm", "width_mm", "height_mm", "profile_id", "load_kg"]
+        }
+      },
+      "instructions": "Run website_list_profiles and website_calculate_bom_and_deflection. If deflection fails L/300, automatically test 4080-Heavy or Steel-40x40x2 and report both.",
+      "tools": [
+        "website_list_profiles",
+        "website_calculate_bom_and_deflection"
+      ]
+    },
+    {
+      "name": "cutlist_optimizer_agent",
+      "function": {
+        "description": "Runs First-Fit Decreasing (FFD) 1D bin-packing across 6000mm or 2000mm stock bars accounting for 3mm saw kerf.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "length_mm": { "type": "number" },
+            "width_mm": { "type": "number" },
+            "height_mm": { "type": "number" },
+            "stock_length_mm": { "type": "number" },
+            "qty": { "type": "number" }
+          },
+          "required": ["length_mm", "width_mm", "height_mm", "stock_length_mm"]
+        }
+      },
+      "instructions": "Call website_optimize_cut_list to minimize stock bars and scrap waste.",
+      "tools": [
+        "website_optimize_cut_list"
+      ]
+    },
+    {
+      "name": "quote_compliance_agent",
+      "function": {
+        "description": "Prepares and issues a verifiable SHA-256 signed RFQ receipt after explicit visitor confirmation.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "customer_name": { "type": "string" },
+            "profile_id": { "type": "string" },
+            "length_mm": { "type": "number" },
+            "width_mm": { "type": "number" },
+            "height_mm": { "type": "number" },
+            "load_kg": { "type": "number" },
+            "qty": { "type": "number" },
+            "stock_length_mm": { "type": "number" }
+          },
+          "required": ["profile_id", "length_mm", "width_mm", "height_mm", "load_kg", "qty"]
+        }
+      },
+      "instructions": "Invoke website_issue_signed_rfq only when the visitor explicitly asks to issue/sign an RFQ. The runtime Confirmation Modal will enforce user consent.",
+      "tools": [
+        "website_issue_signed_rfq"
+      ]
+    }
+  ]
+}
