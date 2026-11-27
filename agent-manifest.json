@@ -1,0 +1,87 @@
+{
+  "spec_profile": "worldwide-agentic-web-mvp/0.3",
+  "brand": "AgenticFab — Structural Aluminum & Steel Frame Co-Designer",
+  "networks": [
+    {
+      "name": "agentic_fab",
+      "front_man": "agentic_fab_frontman",
+      "hocon": "./agentic_fab.network.json",
+      "description": "Multi-agent engineering assistant that designs 4040/4080 aluminum & steel workbenches, checks Euler-Bernoulli beam deflection against L/300 stiffness limits, optimizes 1D stock-bar cut lists (First-Fit Decreasing), syncs to a live SVG blueprint, and issues SHA-256 signed RFQs.",
+      "tags": [
+        "agentified-website",
+        "engineering",
+        "manufacturing",
+        "cad-bom",
+        "cutlist-optimization"
+      ],
+      "sample_queries": [
+        "Design a 1600x800x750mm 4040-Heavy workbench for 250kg load & optimize 6000mm cut list",
+        "Check if 4040-Light passes 300kg distributed load over a 2000mm span",
+        "Compare 4040-Heavy vs 4080-Heavy for 2000x900x750mm under 350kg load",
+        "Issue a SHA-256 signed RFQ for 3 tables at 1400x700x750mm 4040-Heavy"
+      ]
+    }
+  ],
+  "llm_router": {
+    "base_url": "https://api.otari.ai/api/v1",
+    "mock": false,
+    "byok_router": "https://api.otari.ai/api/v1",
+    "supports_zero_key_local_engine": true
+  },
+  "allowed_peers": [
+    "https://worldwideagenticweb.org",
+    "https://agent-atlas-phi.vercel.app"
+  ],
+  "peer_policy": {
+    "mode": "consent-required",
+    "deny_origins": [],
+    "note": "Visitors explicitly approve each third-party peer origin before its agent-manifest.json is fetched. Visitor BYOK credentials are never sent to peer origins."
+  },
+  "agent_mcp": {
+    "protocol": "nsdeploy-agent-mcp/v1",
+    "network": "agentic_fab",
+    "front_man": "agentic_fab_frontman",
+    "available": false,
+    "reason": "Static GitHub Pages bundle running client-side in the visitor's browser; a public MCP facade requires an application server."
+  },
+  "theme": {
+    "primary": "#10b981"
+  },
+  "linking": {
+    "protocol": "nsdeploy-link/v1",
+    "exports": [
+      {
+        "network": "agentic_fab",
+        "front_man": "agentic_fab_frontman",
+        "aliases": [
+          "agentic_fab",
+          "agentic_fab_frontman"
+        ],
+        "url": "agentic_fab"
+      }
+    ],
+    "imports": [],
+    "link_updates": {
+      "mode": "browser-local"
+    }
+  },
+  "deployment": {
+    "mode": "static",
+    "self_contained_runtime": true,
+    "browser_mock": false,
+    "direct_byok": true,
+    "direct_mcp_requires_cors": true,
+    "public_mcp_facade": false
+  },
+  "actions": {
+    "version": 1,
+    "module": "./site-actions.js",
+    "agentTools": [
+      "list_profiles",
+      "calculate_bom_and_deflection",
+      "optimize_cut_list",
+      "apply_to_workbench",
+      "issue_signed_rfq"
+    ]
+  }
+}
