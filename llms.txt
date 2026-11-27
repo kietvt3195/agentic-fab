@@ -1,0 +1,8 @@
+# AgenticFab — Open Agentic Web Site
+> Structural Aluminum & Steel Frame Co-Designer (MVP Profile 0.3)
+
+- Manifest: https://kietvt3195.github.io/agentic-fab/agent-manifest.json
+- Agent Network (JSON): https://kietvt3195.github.io/agentic-fab/agentic_fab.network.json
+- A2A Agent Card: https://kietvt3195.github.io/agentic-fab/.well-known/agent.json
+- Site Actions (ES Module): https://kietvt3195.github.io/agentic-fab/site-actions.js
+- Runtime: Browser-only ES module (`./runtime.js`), supports pluggable BYOK OpenAI-compatible inference and zero-key deterministic evaluation.
