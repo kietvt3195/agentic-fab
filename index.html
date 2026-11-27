@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgenticFab — Open Agentic Web Structural Frame Co-Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-group">
+        <span class="pulse-dot"></span>
+        <div>
+          <div class="brand-name">AgenticFab</div>
+          <div class="brand-sub" data-i18n="brand_sub">Open Agentic Web MVP 0.3 • Structural Frame Co-Designer</div>
+        </div>
+      </div>
+
+      <div class="spec-links">
+        <a href="./agent-manifest.json" target="_blank" class="spec-pill">agent-manifest.json</a>
+        <a href="./agentic_fab.network.json" target="_blank" class="spec-pill">network.json</a>
+        <a href="./.well-known/agent.json" target="_blank" class="spec-pill">agent.json</a>
+        <span id="specStatusBadge" class="status-pill">Loading runtime...</span>
+      </div>
+
+      <div class="top-actions">
+        <button id="btnByok" type="button" class="btn btn-outline btn-sm" data-i18n="btn_byok">BYOK / LLM Config</button>
+        <button id="btnPeer" type="button" class="btn btn-outline btn-sm" data-i18n="btn_peer">Peer Loader</button>
+        <button id="btnLang" type="button" class="btn btn-outline btn-sm">EN / VI</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- LEFT PANE: LIVE ENGINEERING WORKBENCH -->
+    <section class="pane workbench-pane">
+      <div class="pane-head">
+        <h2 data-i18n="wb_title">Live Engineering Workbench</h2>
+        <div class="head-btns">
+          <button id="btnExportCsv" type="button" class="btn btn-outline btn-sm" data-i18n="btn_csv">Export BOM CSV</button>
+          <button id="btnTriggerRfq" type="button" class="btn btn-primary btn-sm" data-i18n="btn_rfq">Sign RFQ (SHA-256)</button>
+        </div>
+      </div>
+
+      <div class="workbench-grid">
+        <!-- Controls -->
+        <div class="card">
+          <h3 data-i18n="ctrl_title">Frame &amp; Load Parameters</h3>
+          <div class="ctrl">
+            <label><span data-i18n="lbl_len">Length L (mm)</span><strong id="valLen">1400 mm</strong></label>
+            <input id="inpLen" type="range" min="800" max="2400" step="50" value="1400" />
+          </div>
+          <div class="ctrl">
+            <label><span data-i18n="lbl_wid">Width W (mm)</span><strong id="valWid">700 mm</strong></label>
+            <input id="inpWid" type="range" min="500" max="1200" step="50" value="700" />
+          </div>
+          <div class="ctrl">
+            <label><span data-i18n="lbl_hei">Height H (mm)</span><strong id="valHei">750 mm</strong></label>
+            <input id="inpHei" type="range" min="600" max="1000" step="25" value="750" />
+          </div>
+          <div class="ctrl">
+            <label><span data-i18n="lbl_load">Distributed Load (kg)</span><strong id="valLoad">180 kg</strong></label>
+            <input id="inpLoad" type="range" min="20" max="500" step="10" value="180" />
+          </div>
+
+          <div class="row-2">
+            <div class="ctrl">
+              <label data-i18n="lbl_profile">Structural Profile</label>
+              <select id="selProfile">
+                <option value="4040-Light">4040-Light (6063-T5)</option>
+                <option value="4040-Heavy" selected>4040-Heavy (6063-T5)</option>
+                <option value="4080-Heavy">4080-Heavy (6063-T5)</option>
+                <option value="Steel-40x40x2">Steel 40x40x2.0mm</option>
+              </select>
+            </div>
+            <div class="ctrl">
+              <label data-i18n="lbl_stock">Stock Bar Length</label>
+              <select id="selStock">
+                <option value="6000" selected>6000 mm (Standard)</option>
+                <option value="2000">2000 mm (Compact)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row-2 align-end">
+            <div class="ctrl" style="margin-bottom:0">
+              <label data-i18n="lbl_qty">Quantity (Units)</label>
+              <input id="inpQty" type="number" min="1" max="50" value="1" />
+            </div>
+            <div class="checks">
+              <label class="chk"><input id="chkTop" type="checkbox" checked /> <span data-i18n="lbl_top">18mm Tabletop</span></label>
+              <label class="chk"><input id="chkCasters" type="checkbox" checked /> <span data-i18n="lbl_casters">4x Locking Casters</span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live SVG Blueprint + Structural Deflection -->
+        <div class="card">
+          <div class="card-top">
+            <h3 data-i18n="bp_title">Live Isometric Blueprint &amp; Deflection</h3>
+            <span id="safetyBadge" class="safety-badge pass">PASS</span>
+          </div>
+          <svg id="svgBlueprint" viewBox="0 0 420 260" class="blueprint-svg" aria-label="3D Frame Isometric Blueprint"></svg>
+          <div id="safetyDetail" class="safety-detail"></div>
+        </div>
+      </div>
+
+      <!-- Cut-List Optimizer Bars -->
+      <div class="card">
+        <div class="card-top">
+          <h3 data-i18n="cut_title">1D Cut-List Bin-Packing (First-Fit Decreasing, 3mm Kerf)</h3>
+          <span id="cutSummary" class="muted-meta"></span>
+        </div>
+        <div id="cutBarsList" class="cut-bars"></div>
+      </div>
+
+      <!-- Itemized BOM Table + Signed RFQ Output -->
+      <div class="card">
+        <div class="card-top">
+          <h3 data-i18n="bom_title">Itemized Bill of Materials (BOM)</h3>
+          <div class="bom-totals">
+            <strong id="bomTotalUsd">$0.00</strong>
+            <span id="bomTotalVnd" class="muted-meta">0 VNĐ</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="bom-table">
+            <thead>
+              <tr>
+                <th data-i18n="col_item">Item / Cut</th>
+                <th data-i18n="col_spec">Spec</th>
+                <th data-i18n="col_cost">Est. Cost</th>
+              </tr>
+            </thead>
+            <tbody id="bomRows"></tbody>
+          </table>
+        </div>
+        <div id="rfqBox" class="rfq-box" style="display:none"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: OPEN AGENTIC WEB CONSOLE -->
+    <section class="pane agent-pane">
+      <div class="pane-head">
+        <div>
+          <h2 data-i18n="ag_title">Open Agentic Web Console</h2>
+          <span id="byokModeBadge" class="mode-badge">Mode: Zero-Key Local Engine (Ready)</span>
+        </div>
+        <span id="traceStepCount" class="step-pill">Steps: 0 / 12</span>
+      </div>
+
+      <div class="samples-bar">
+        <div class="samples-lbl" data-i18n="ag_samples_lbl">Sample Queries (Click to Run Multi-Agent Pipeline):</div>
+        <div id="sampleQueries" class="sample-pills"></div>
+      </div>
+
+      <div id="chatMessages" class="chat-feed"></div>
+
+      <div class="trace-panel">
+        <div class="trace-head">
+          <span data-i18n="ag_trace_title">Multi-Agent Execution Trace (JSON-Defined Network)</span>
+          <span class="muted-meta">agentic_fab_frontman</span>
+        </div>
+        <div id="traceList" class="trace-list">
+          <div class="trace-empty" data-i18n="ag_trace_empty">Run a query above to inspect agent delegations, schema validations, and tool effects (READ / WRITE / IRREVERSIBLE).</div>
+        </div>
+      </div>
+
+      <form id="agentForm" class="agent-input-bar">
+        <input id="agentInput" type="text" placeholder="Ask agentic_fab_frontman (e.g. Design 1800x800x750mm table for 300kg load)..." required />
+        <button id="btnSendQuery" type="submit" class="btn btn-primary" data-i18n="ag_send">Run</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- MODAL 1: BYOK LLM CONFIG -->
+  <div id="modalByok" class="modal-backdrop" style="display:none">
+    <div class="modal-card">
+      <h3>Pluggable BYOK Inference Configuration</h3>
+      <p class="modal-sub">Per Open Agentic Web Tenet 3, the site host never pays for your LLM calls. Keys stay strictly in browser <code>sessionStorage</code> and are never sent to peer sites.</p>
+      <label class="m-lbl">Execution Mode
+        <select id="byokMode" class="m-inp">
+          <option value="local">Zero-Key Deterministic Engine (No API Key Needed)</option>
+          <option value="byok">Bring Your Own Key (OpenAI / OpenRouter / Mozilla Otari)</option>
+        </select>
+      </label>
+      <label class="m-lbl">OpenAI-Compatible Router Base URL
+        <input id="byokUrl" type="text" class="m-inp" value="https://api.otari.ai/api/v1" />
+      </label>
+      <label class="m-lbl">Model Name
+        <input id="byokModel" type="text" class="m-inp" value="gpt-4o-mini" />
+      </label>
+      <label class="m-lbl">API Key (Stored locally in sessionStorage only)
+        <input id="byokKey" type="password" class="m-inp" placeholder="sk-... or Otari key" />
+      </label>
+      <div class="modal-actions">
+        <button id="btnCloseByok" type="button" class="btn btn-outline">Cancel</button>
+        <button id="btnSaveByok" type="button" class="btn btn-primary">Save Config</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: PEER ORIGIN INSPECTOR -->
+  <div id="modalPeer" class="modal-backdrop" style="display:none">
+    <div class="modal-card">
+      <h3>Peer Agent Network Inspector</h3>
+      <p class="modal-sub">Enter any Open Agentic Web peer URL (e.g., <code>https://agent-atlas-phi.vercel.app/agent_atlas</code> or <code>https://worldwideagenticweb.org/</code>). An explicit consent prompt will gate external origin contact.</p>
+      <div class="peer-row">
+        <input id="peerUrlInput" type="text" class="m-inp" value="https://agent-atlas-phi.vercel.app/agent_atlas" />
+        <button id="btnLoadPeer" type="button" class="btn btn-primary">Inspect</button>
+      </div>
+      <pre id="peerResult" class="peer-pre">Ready to inspect a peer agent-manifest.json...</pre>
+      <div class="modal-actions">
+        <button id="btnClosePeer" type="button" class="btn btn-outline">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: MANDATORY IRREVERSIBLE ACTION CONFIRMATION -->
+  <div id="modalConfirm" class="modal-backdrop" style="display:none">
+    <div class="modal-card confirm-card">
+      <div class="warn-pill">IRREVERSIBLE ACTION — VISITOR CONFIRMATION REQUIRED</div>
+      <h3 id="confirmActionName">website_issue_signed_rfq</h3>
+      <p class="modal-sub">Destination Origin: <code id="confirmOrigin"></code></p>
+      <pre id="confirmArgs" class="peer-pre"></pre>
+      <div class="modal-actions">
+        <button id="btnConfirmNo" type="button" class="btn btn-outline">Decline</button>
+        <button id="btnConfirmYes" type="button" class="btn btn-primary">Confirm &amp; Sign RFQ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: THIRD-PARTY ORIGIN CONSENT -->
+  <div id="modalOrigin" class="modal-backdrop" style="display:none">
+    <div class="modal-card confirm-card">
+      <div class="warn-pill" style="background:rgba(99,102,241,0.2);color:#c7d2fe;border-color:#6366f1;">PEER ORIGIN CONSENT REQUIRED</div>
+      <h3>Allow contact with external origin?</h3>
+      <p class="modal-sub">Origin: <strong id="originTarget"></strong><br/>Manifest: <code id="originManifestUrl"></code><br/>Network: <code id="originNetworkName"></code></p>
+      <p class="modal-sub">Your BYOK credentials will <strong>NOT</strong> be sent to this peer origin.</p>
+      <div class="modal-actions">
+        <button id="btnOriginNo" type="button" class="btn btn-outline">Deny</button>
+        <button id="btnOriginYes" type="button" class="btn btn-primary">Allow Once</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
